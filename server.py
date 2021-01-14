@@ -322,7 +322,7 @@ class LinkedList:
 
 
 class fileHandling:
-
+#0
     def __init__(self):
         self.file_name = ""
         self.file = None
@@ -337,7 +337,7 @@ class fileHandling:
             self.file.close()
             pass
 
-
+#1
     def Create(self, *args):
         args = list(args)
         fname = args[0]
@@ -349,7 +349,7 @@ class fileHandling:
         except:
             pass
         return "File is Created "+"by User-"+current_thread().name+"\n"
-
+#2
     def Delete(self, *args):
         
         args = list(args)
@@ -366,7 +366,7 @@ class fileHandling:
         except:
             return " "
         self.test_func()
-
+#3
     def Open(self, *args):
         args = list(args)
         fname = args[0]
@@ -374,13 +374,13 @@ class fileHandling:
         self.file_name = fname
         return "File is Opened "+"by User-"+current_thread().name+"\n"
         # return f
-
+#4
     def Close(self, *args):
         args = list(args)
         fname = args[0]
         self.file_name = fname
         return "File is Closed "+"by User-"+current_thread().name+"\n"
-
+#5
     # write_at_first_time
     def write_to_file(self, *args):
         
@@ -400,7 +400,7 @@ class fileHandling:
         except:
             return " "
         self.test_func()
-
+#6
     def write_at_OVERWRITE(self, fname, write_at, text):
         
         try:
@@ -418,7 +418,7 @@ class fileHandling:
         except:
             return " "
         self.test_func()
-
+#7
     def write_at_noOVERWRITE(self, fname, write_at, text):
         
         try:
@@ -436,7 +436,7 @@ class fileHandling:
         except:
             return " "
         self.test_func()
-
+#8
 #write to file function needs attention
     def Write_to_File_over(self, *args):
         args = list(args)
@@ -451,7 +451,7 @@ class fileHandling:
         else:
             return_var = self.write_at_noOVERWRITE(fname, int(write_at), text)
         return return_var
-
+#9
     def Read_From_File(self, *args):
         
         args = list(args)
@@ -461,7 +461,7 @@ class fileHandling:
         return t
 
     #Write in End
-
+#10
     def appendFile(self, *args):
         
         try:
@@ -481,7 +481,7 @@ class fileHandling:
         except:
             return " "
         self.test_func()
-
+#11
     def Move_within_file(self, *args):
         
         try:
@@ -505,7 +505,7 @@ class fileHandling:
         except:
             return " "
         self.test_func()
-
+#12
     def read_from_file_at(self, *args):
         
         try:
@@ -532,7 +532,7 @@ class fileHandling:
         except:
             return " "
         self.test_func()
-
+#13
     def truncate(self, *args):
         
         v = self.file
@@ -560,16 +560,16 @@ class fileHandling:
 
             return "File has been Truncated " + "by User-"+current_thread().name+"\n"
         self.test_func()
-
+#14
     def show_memory_map(self):
         self.test_func()
         mem_dat = self.llist.memory_map()
         return mem_dat
-
+#15
     def system_exit(self):
         #self.file.close()
         return " "
-
+#16
     def test_func(self):
         self.file = open("sample.dat", 'r')
         f_d = self.file.read()
@@ -626,6 +626,7 @@ class threading_class:
         for j in range(len(data_list)-1):
             pt.append(data_list[j+1])
 
+        if 
         return_data = self.call_func_dynamically(function_to_perform, pt)
         return return_data
 
