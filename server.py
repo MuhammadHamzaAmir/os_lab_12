@@ -322,6 +322,7 @@ class LinkedList:
 
 
 class fileHandling:
+    
 #0
     def __init__(self):
         self.file_name = ""
@@ -577,7 +578,10 @@ class fileHandling:
         self.llist.clear()
         self.llist.get_data(f_d)
 
+
+lk = threading.Lock()
 class threading_class:
+    
     def __init__(self, thread_name_obj,connection_to_client):
         self.file_hand = fileHandling()
         self.threading_list = []
@@ -623,11 +627,38 @@ class threading_class:
                 function_to_perform = functions_of_file_handling_class[i][0]
         print(function_to_perform)
         pt = []
+        #lk = threading.Lock()
         for j in range(len(data_list)-1):
             pt.append(data_list[j+1])
+        return_data = ' '
+        if (((function_to_perform == 'Open') and (pt[1] == 'w' or pt[1] == 'a')) or (function_to_perform == 'write_to_file') or (function_to_perform == 'Write_to_File_over') or (function_to_perform == 'appendFile') or (function_to_perform == 'Move_within_file') or (function_to_perform == 'truncate') or (function_to_perform == 'Delete')):
+            while ( lk.locked == True):
+                continue
 
-        if 
-        return_data = self.call_func_dynamically(function_to_perform, pt)
+
+                
+            print('okag write')
+            lk.acquire()
+            return_data = self.call_func_dynamically(function_to_perform, pt)
+        
+        elif ((function_to_perform == 'Open') and (pt[1] == 'r') or (function_to_perform == 'Read_From_File') or (function_to_perform == 'read_from_file_at')):
+            #while (lk.locked == True):
+             #   continue
+            
+            print('okag read')
+            lk.acquire()
+            return_data = self.call_func_dynamically(function_to_perform, pt)
+
+        elif( (function_to_perform == 'Close')):
+            while (lk.locked == False):
+                continue
+            return_data = self.call_func_dynamically(function_to_perform, pt)
+            lk.release()
+
+        else:
+            return_data = self.call_func_dynamically(function_to_perform, pt)
+
+
         return return_data
 
     def call_func_dynamically(self, name, list_ge):
