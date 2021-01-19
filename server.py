@@ -579,10 +579,16 @@ class fileHandling:
         self.llist.get_data(f_d)
 
 
-lk = threading.Lock()
+t_l = threading.Lock()
+lki = threading.Lock()
+lkie = threading.Lock()
+file_mode_open = ' '
+read_mode_files_open = 0
+write_mode_files_open = 0
+queue = []
 class threading_class:
     
-    def __init__(self, thread_name_obj,connection_to_client):
+    def __init__(self, thread_name_obj,connection_to_client,locker):
         self.file_hand = fileHandling()
         self.threading_list = []
         self.jt = 0
@@ -590,6 +596,8 @@ class threading_class:
         self.t = threading.Thread(target=self.read_input, args=[
                                   str(thread_name_obj)], daemon=True)
         self.t.name = str(thread_name_obj)
+        self.lk = locker
+        self.f_mode = ''
 
     def thread_start(self):
         self.t.start()
@@ -615,48 +623,214 @@ class threading_class:
         self.ctc.close()
         self.file_hand.system_exit()
         
+        #self.t.join()
+        
 
 
 
     def execute_program(self, data_list):
+        global lki
+        global lkie
+        global file_mode_open
+        global read_mode_files_open
+        global write_mode_files_open
+        #global t_l
         functions_of_file_handling_class = inspect.getmembers(
             fileHandling, predicate=inspect.isfunction)
         function_to_perform = ""
         for i in range(len(functions_of_file_handling_class)):
             if (functions_of_file_handling_class[i][0].lower() == data_list[0].lower()):
                 function_to_perform = functions_of_file_handling_class[i][0]
-        print(function_to_perform)
+        #print(function_to_perform)
         pt = []
         #lk = threading.Lock()
         for j in range(len(data_list)-1):
             pt.append(data_list[j+1])
         return_data = ' '
         if (((function_to_perform == 'Open') and (pt[1] == 'w' or pt[1] == 'a')) or (function_to_perform == 'write_to_file') or (function_to_perform == 'Write_to_File_over') or (function_to_perform == 'appendFile') or (function_to_perform == 'Move_within_file') or (function_to_perform == 'truncate') or (function_to_perform == 'Delete')):
-            while ( lk.locked == True):
-                continue
+            #while ( self.lk.locked == True):
+            #    continue
 
-
+            #while (lki.locked() == True or lkie.locked() == True):
+            #    continue
                 
             print('okag write')
-            lk.acquire()
-            return_data = self.call_func_dynamically(function_to_perform, pt)
+            #self.lk.acquire()
+            #return_data = self.call_func_dynamically(function_to_perform, pt)
+            file_mode_open = pt[1]
+            queue.append(pt[1])
+            #while ( t_l.locked() == True):
+            #    continue
+            if ((function_to_perform == 'Open') and (pt[1] == 'w' or pt[1] == 'a')):
+                #self.lk.acquire()
+                #lki.acquire()
+                #file_mode_open = pt[1]
+                t_l.acquire()
+                self.f_mode = pt[1]
+                write_mode_files_open = write_mode_files_open + 1
+                #file_mode_open = pt[1]
+                return_data = self.call_func_dynamically(
+                    function_to_perform, pt)
+            else:
+                if (self.f_mode == 'r'):
+                    return_data = "File is opened in read mode. TRY AGAIN! in other modes"
+                else:
+                    return_data = self.call_func_dynamically(function_to_perform, pt)
         
-        elif ((function_to_perform == 'Open') and (pt[1] == 'r') or (function_to_perform == 'Read_From_File') or (function_to_perform == 'read_from_file_at')):
-            #while (lk.locked == True):
-             #   continue
-            
+        elif (((function_to_perform == 'Open') and (pt[1] == 'r')) or (function_to_perform == 'Read_From_File') or (function_to_perform == 'read_from_file_at')):
+            #while (self.lk.locked == True):
+             #   continue 
+            #while (t_l.locked() == True):
+            #    continue
             print('okag read')
-            lk.acquire()
-            return_data = self.call_func_dynamically(function_to_perform, pt)
+            if ((function_to_perform == 'Open') and (pt[1] == 'r')):
+                
+                '''
+                if (self.lk.locked == True):
+                    self.lk.release()
+                    
+                    return_data = self.call_func_dynamically(function_to_perform, pt)
+                    self.lk.acquire()
+            
+                
+                else:
+                    self.lk.acquire()
+                    return_data = self.call_func_dynamically(
+                        function_to_perform, pt)'''
+                '''        
+                if ( file_mode_open == 'r'):
+                    if (lkie.locked() == True):
+                        lkie.release()
+
+                        return_data = self.call_func_dynamically(
+                            function_to_perform, pt)
+                        lkie.acquire()
+
+                    else:
+                        lkie.acquire()
+                        return_data = self.call_func_dynamically(
+                            function_to_perform, pt)'''
+                print("G HAAA")
+                read_mode_files_open = read_mode_files_open + 1
+                self.f_mode = pt[1]
+                file_mode_open = pt[1]
+                queue.append(pt[1])
+                if (queue[0] == 'r'):
+                    #file_mode_open = pt[1]
+                    if (t_l.locked() == True):
+                        print("READ OPEN IF LOCKED")
+                        '''try execpt add read write read// write read write'''
+                        t_l.release()
+                        
+                        #file_mode_open = pt[1]
+                        return_data = self.call_func_dynamically(
+                            function_to_perform, pt)
+                        #read_mode_files_open = read_mode_files_open - 1
+                        #read_mode_files_open = read_mode_files_open + 1
+                        t_l.acquire()
+
+                    else:
+                        print("READ OPEN IN ElSE FALSE")
+                        t_l.acquire()
+                        #file_mode_open = pt[1]
+                        #read_mode_files_open = read_mode_files_open - 1
+                        #read_mode_files_open = read_mode_files_open + 1
+ 
+                        return_data = self.call_func_dynamically(
+                            function_to_perform, pt)
+                else:
+                    print("ElSE WAIT")
+                    #while (t_l.locked() == True):
+                    #    continue
+                    #read_mode_files_open = read_mode_files_open - 1
+                    #read_mode_files_open = read_mode_files_open + 1
+                    print("before accquire ")
+                    '''see about write read read and also write read write read'''
+                    t_l.acquire()
+                    print("after accquire ")
+                    return_data = self.call_func_dynamically(function_to_perform, pt)
+                    #file_mode_open = pt[1]
+                #t_l.acquire()
+                #return_data = self.call_func_dynamically(function_to_perform, pt)
+                '''
+                else:
+                    while (lki.locked() == True):
+                        continue
+                    return_data = self.call_func_dynamically(
+                        function_to_perform, pt)
+                    file_mode_open = pt[1]'''
+                #self.lk.acquire()
+                #self.f_mode = pt[1]
+                #return_data = self.call_func_dynamically(function_to_perform, pt)
+            else :
+                if (self.f_mode != 'r'):
+                    return_data = "File is not opened in read mode. TRY AGAIN! in read modes"
+                else:
+                    #if (self.lk.locked == True):
+                    #    self.lk.release()
+                    return_data = self.call_func_dynamically(function_to_perform, pt)
+                    #    self.lk.acquire()
 
         elif( (function_to_perform == 'Close')):
-            while (lk.locked == False):
+            '''while (self.lk.locked() == True):
                 continue
             return_data = self.call_func_dynamically(function_to_perform, pt)
-            lk.release()
-
-        else:
+            self.f_mode = 'TBC'
+            self.lk.release()'''
+            #else :
+            #while (lki.locked() == True):
+            #    continue
+            '''
+            if (lki.locked() == True and (file_mode_open == 'w' or file_mode_open == 'a')):
+                lki.release()
+            if (lkie.locked() == True and file_mode_open == 'r'):
+                lkie.release()'''
+            #while (t_l.locked() == True):
+            #    continue
+            try:
+                print("queue",queue)
+            except:
+                print("epty list")
+            if (queue[0] == 'r' ):
+                print('1st if before file mode ', file_mode_open,
+                      ' read_var_files ', read_mode_files_open)
+                if (read_mode_files_open != 0):
+                    read_mode_files_open = read_mode_files_open - 1
+                    queue.pop(0)
+                    if (read_mode_files_open == 0):
+                        print(' 3rd innesrtif before file mode ', file_mode_open,' read_var_files ',read_mode_files_open)
+                        file_mode_open = 'TBC'
+                        #queue.pop(0)
+                        #if (t_l.locked() == True):
+                        try:
+                            t_l.release()
+                        except Exception as e:
+                            print("Error ",e)
+            else:
+                print('eklse before file mode ', file_mode_open,' read_var_files ',read_mode_files_open)
+                #if (t_l.locked() == True):
+                if (write_mode_files_open != 0):
+                    write_mode_files_open = write_mode_files_open - 1
+                    print('eklse before file mode in queue[0]', queue[0],
+                          ' write_var_files ', write_mode_files_open)
+                    queue.pop(0)
+                    
+                try:
+                    t_l.release()
+                except Exception as e:
+                    print("Error ",e)
+            
+                return_data = self.call_func_dynamically(function_to_perform, pt)
+            self.f_mode = 'TBC'
+            #file_mode_open = self.f_mode
+            
+        elif((function_to_perform == 'show_memory_map') or (function_to_perform == 'system_exit')):
             return_data = self.call_func_dynamically(function_to_perform, pt)
+        
+        elif (len(self.f_mode) > 1):
+            return_data = "File is not opened in any mode"
+                
+        
 
 
         return return_data
@@ -673,21 +847,23 @@ class socket_class:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(('',95))
         self.t_l = []
-        self.server.settimeout(120)
+        #self.server.settimeout(600)
+        self.lock_t = threading.Lock()
 
     def start_srvice(self):
         self.server.listen(10)
-        ex_test = "MHA_ARA"
-        ex_test = ex_test.encode('utf-8')
+        
+        self.server.settimeout(360)
         while True:
             try:
+                #print(' AT FURST OFD LOOP')
                 conn, addr = self.server.accept()
                 user_name = conn.recv(204800)
-                obj = threading_class(user_name.decode('utf-8'), conn)
+                obj = threading_class(user_name.decode('utf-8'), conn,self.lock_t)
                 self.t_l.append(obj)
                 obj.thread_start()
-                if user_name == ex_test:
-                    break
+                #print("in while socket")
+                
             except:
                 break
         self.server.close()
